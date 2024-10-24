@@ -30,7 +30,7 @@ We chose **SQL (Structured Query Language)** for this project due to the structu
 ### 1. Database Configuration
 1. Clone this repository or download the source code.
   ```
-  git clone https://github.com/asiftauhid/lytport.git
+  git clone https://github.com/ahamedfoisal/lytport
   ```
 2. Install the required packages:
   ```
@@ -64,7 +64,7 @@ python app.py
 ```
 ## Entity-Relationship (ER) Diagram 
 
-[ER Diagram](https://github.com/asiftauhid/lytport/blob/main/ER%20diagram.png)
+[ER Diagram](https://github.com/ahamedfoisal/lytport/blob/main/Detailed%20ER%20Diagram.png)
 
 The ER Diagram illustrates the structure of the database schema used in this project. It highlights the entities and relationships, making it easier to understand the connections between different tables. 
 
