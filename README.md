@@ -30,7 +30,7 @@ We chose **SQL (Structured Query Language)** for this project due to the structu
 ### 1. Database Configuration
 1. Clone this repository or download the source code.
   ```
-  git clone https://github.com/ahamedfoisal/lytport
+  git clone https://github.com/ahamedfoisal/lytport.git
   ```
 2. Install the required packages:
   ```
