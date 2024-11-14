@@ -1,10 +1,10 @@
-from database.database import BaseTable
+from .profiledb import BaseProfileTable
 from sqlalchemy.exc import SQLAlchemyError
 
-class Post(BaseTable):
-    def __init__(self, drop = False):
+class Post(BaseProfileTable):
+    def __init__(self, drop=False):
         super().__init__()
-        self.table_name = 'posts'
+        self.table_name = 'posts_client'
         
         if drop:
             self.drop_table()
@@ -27,27 +27,36 @@ class Post(BaseTable):
                 );
                 """
                 self.execute_query(query)
-
+                print(f"Table `{self.table_name}` created successfully.")
+            else:
+                print(f"Table `{self.table_name}` already exists.")
+                
         except SQLAlchemyError as e:
-            pass
+            print(f"Error creating table `{self.table_name}`: {e}")
+            raise
+        except Exception as e:
+            print(f"Unexpected error creating table `{self.table_name}`: {e}")
+            raise
 
-    def write(self, user_id, post_id, media_type, media_url, caption):
+    def write(self, user_id, media_type, media_url, caption):
         query = f"""
         INSERT INTO `{self.table_name}` (`user_id`, `media_type`, `media_url`, `caption`, `timestamp`)
         VALUES (:user_id, :media_type, :media_url, :caption, CURRENT_TIMESTAMP);
         """
         params = {
             'user_id': user_id,
-            'post_id': post_id,
             'media_type': media_type,
             'media_url': media_url,
             'caption': caption
         }
         self.execute_query(query, params)
+        print("Post added successfully.")
 
     def read(self):
         query = f"SELECT * FROM `{self.table_name}`;"
-        return self.fetch_query(query)
+        results = self.fetch_query(query)
+        print("Posts retrieved successfully.")
+        return results
 
     def update(self, post_id, caption=None):
         query = f"""
@@ -57,12 +66,14 @@ class Post(BaseTable):
         """
         params = {'post_id': post_id, 'caption': caption}
         self.execute_query(query, params)
+        print("Post updated successfully.")
 
     def delete(self, post_id):
         query = f"DELETE FROM `{self.table_name}` WHERE `post_id` = :post_id;"
         params = {'post_id': post_id}
         self.execute_query(query, params)
-
+        print("Post deleted successfully.")
 
     def drop_table(self):
         self.execute_query(f"DROP TABLE IF EXISTS `{self.table_name}`;")
+        print(f"Table `{self.table_name}` dropped successfully.")
