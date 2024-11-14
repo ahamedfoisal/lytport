@@ -16,43 +16,18 @@ follower_db = Follower()
 
 def drop_tables_in_order():
     try:
-        # Get a connection from the engine
         with Database.get_engine().connect() as connection:
-            # Disable foreign key checks to allow dropping tables with dependencies
             connection.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
-        
-            # Drop tables in reverse order of foreign key dependencies
-            Engagement(drop=True)  # No foreign key dependencies
-            Comment(drop=True)     # Depends on Post and User
-            Follower(drop=True)    # Depends on User
-            Post(drop=True)        # Depends on User
-            User(drop=True)        # Independent
-
+            Engagement(drop=True)
+            Comment(drop=True)
+            Follower(drop=True)
+            Post(drop=True)
+            User(drop=True)
             print("All tables dropped successfully.")
-        
-            # Re-enable foreign key checks after dropping tables
             connection.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
-
     except SQLAlchemyError as e:
         print(f"Error dropping tables: {e}")
         raise
-
-
-def load_data_from_csv(file_path, table_class):
-    """
-    General function to load data from CSV into the corresponding table.
-    
-    Args:
-    file_path (str): Path to the CSV file.
-    table_class (BaseTable): The class corresponding to the table (User, Post, Comment, etc.)
-    
-    """
-    # Read the CSV data using pandas
-    data_df = pd.read_csv(file_path)
-    
-    # Initialize the table object
-    table_obj = table_class()
-
 
 def load_users_from_csv(file_path):
     data_df = pd.read_csv(file_path)
@@ -65,24 +40,40 @@ def load_users_from_csv(file_path):
             bio=row['bio'], 
             followers_count=row['followers'], 
             following_count=row['follows'], 
-            location= "N/A", 
+            location="N/A", 
             is_influential=row['is_verified']
         )
     print(f"Loaded {len(data_df)} records into the User table.")
 
-def load_posts_from_csv(file_path):
+def load_images_from_csv(file_path):
+    """Load image posts from CSV into the Post table."""
     data_df = pd.read_csv(file_path)
     post_db = Post()
 
     for _, row in data_df.iterrows():
         post_db.write(
             user_id=int(row['user_id']) + 8, 
-            media_type= "img", 
+            post_id=int(row['image_id']),
+            media_type="image", 
             media_url=row['src'], 
             caption=row['accessibility_caption']
         )
-    print(f"Loaded {len(data_df)} records into the Post table.")
+    print(f"Loaded {len(data_df)} image records into the Post table.")
 
+def load_videos_from_csv(file_path):
+    """Load video posts from CSV into the Post table."""
+    data_df = pd.read_csv(file_path)
+    post_db = Post()
+
+    for _, row in data_df.iterrows():
+        post_db.write(
+            user_id=int(row['user_id']) + 8, 
+            post_id=int(row['video_id']),
+            media_type="video", 
+            media_url=row['url'], 
+            caption=row['captions']
+        )
+    print(f"Loaded {len(data_df)} video records into the Post table.")
 
 def load_comments_from_csv(file_path):
     data_df = pd.read_csv(file_path)
@@ -103,23 +94,22 @@ def load_engagements_from_csv(file_path):
 
     for _, row in data_df.iterrows():
         engagement_db.write(
-            post_id=row['post_id'], 
-            likes_count=row['likes_count'], 
+            post_id=row['image_id', 'video_id'], 
+            likes_count=row['likes'], 
             comments_count=row['comments_count'], 
-            shares_count=row['shares_count'], 
-            video_completion_rate=row['video_completion_rate']
+            # shares_count=row['shares_count'], 
+            # video_completion_rate=row['video_completion_rate']
         )
     print(f"Loaded {len(data_df)} records into the Engagement table.")
 
 def main():
-    # drop_tables_in_order()
+    drop_tables_in_order()
 
-    # Load data into each table from the corresponding CSV file
     load_users_from_csv('real_data/users.csv')
-    load_posts_from_csv('real_data/images.csv')
-    # load_posts_from_csv('real_data/videos.csv')
-    # load_comments_from_csv('data/Dummy_Comments_Data.csv')
-    # load_engagements_from_csv('data/Dummy_Engagement_Data.csv')
+    load_images_from_csv('real_data/images.csv')
+    load_videos_from_csv('real_data/videos.csv')
+    # load_comments_from_csv('real_data/images.csv', 'real_data/videos.csv')
+    load_engagements_from_csv('real_data/images.csv', 'real_data/videos.csv')
 
     # Optionally, read and print data for validation
     user_db = User()
@@ -138,4 +128,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
