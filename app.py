@@ -5,6 +5,7 @@ from database.engagement import Engagement
 
 from database.user import User
 from database.image import Image
+from database.video import Video
 from database.database import Database
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import text
@@ -13,6 +14,7 @@ import pandas as pd
 user_db = User()
 # post_db = Post()
 image_db = Image()
+video_db = Video()
 comment_db = Comment()
 engagement_db = Engagement()
 follower_db = Follower()
@@ -71,22 +73,27 @@ def load_images_from_csv(file_path):
             location=row['location'],
             # media_type="image"
         )
-    print(f"Loaded {len(data_df)} image records into the Post table.")
+    print(f"Loaded {len(data_df)} image records into the Image table.")
 
 def load_videos_from_csv(file_path):
-    """Load video posts from CSV into the Post table."""
+    """Load video posts from CSV into the Video table."""
     data_df = pd.read_csv(file_path)
-    post_db = Post()
+    video_db = Video()
 
     for _, row in data_df.iterrows():
-        post_db.write(
-            user_id=int(row['user_id']) + 8, 
+        video_db.write(
             post_id=int(row['video_id']),
-            media_type="video", 
-            media_url=row['url'], 
-            caption=row['captions']
+            user_id=int(row['user_id']) + 8,
+            # media_type="video", 
+            title=row['title'],
+            thumbnail=row['thumb'],
+            url=row['url'],
+            caption=row['captions'],
+            time_posted=row['taken_at'],
+            location=row['location'],
+            duration=row['duration']
         )
-    print(f"Loaded {len(data_df)} video records into the Post table.")
+    print(f"Loaded {len(data_df)} video records into the Video table.")
 
 def load_comments_from_csv(file_path):
     data_df = pd.read_csv(file_path)
@@ -119,9 +126,10 @@ def main():
     # drop_tables_in_order()
 
     # load_users_from_csv('real_data/users.csv')
-    load_images_from_csv('real_data/images.csv')
     # load_images_from_csv('real_data/images.csv')
-    # load_videos_from_csv('real_data/videos.csv')
+    load_videos_from_csv('real_data/videos.csv')
+
+    #To be updated
     # # load_comments_from_csv('real_data/images.csv', 'real_data/videos.csv')
     # load_engagements_from_csv('real_data/images.csv', 'real_data/videos.csv')
 
@@ -134,6 +142,9 @@ def main():
 
     image_db = Image()
     print("Images:", image_db.read())
+
+    video_db = Video()
+    print("Videos:", video_db.read())
 
     comment_db = Comment()
     print("Comments:", comment_db.read())
