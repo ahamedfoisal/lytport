@@ -36,12 +36,17 @@ def load_users_from_csv(file_path):
     for _, row in data_df.iterrows():
         user_db.write(
             user_id=int(row['id']) + 8,
+            name=row['name'],
             username=row['username'], 
+            category=row['category'],
+            # business_category=row['business_category'],
             bio=row['bio'], 
-            followers_count=row['followers'], 
-            following_count=row['follows'], 
-            location="N/A", 
-            is_influential=row['is_verified']
+            followers=row['followers'], 
+            follows=row['follows'], 
+            is_verified=bool(row['is_verified']),
+            video_count=row['video_count'],
+            image_count=row['image_count']
+            # location="N/A"
         )
     print(f"Loaded {len(data_df)} records into the User table.")
 
@@ -103,13 +108,13 @@ def load_engagements_from_csv(file_path):
     print(f"Loaded {len(data_df)} records into the Engagement table.")
 
 def main():
-    drop_tables_in_order()
+    # drop_tables_in_order()
 
     load_users_from_csv('real_data/users.csv')
-    load_images_from_csv('real_data/images.csv')
-    load_videos_from_csv('real_data/videos.csv')
-    # load_comments_from_csv('real_data/images.csv', 'real_data/videos.csv')
-    load_engagements_from_csv('real_data/images.csv', 'real_data/videos.csv')
+    # load_images_from_csv('real_data/images.csv')
+    # load_videos_from_csv('real_data/videos.csv')
+    # # load_comments_from_csv('real_data/images.csv', 'real_data/videos.csv')
+    # load_engagements_from_csv('real_data/images.csv', 'real_data/videos.csv')
 
     # Optionally, read and print data for validation
     user_db = User()
