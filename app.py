@@ -1,15 +1,18 @@
 from database.comments import Comment
 from database.follower import Follower
 from database.engagement import Engagement 
-from database.post import Post
+# from database.post import Post
+
 from database.user import User
+from database.image import Image
 from database.database import Database
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import text
 import pandas as pd
 
 user_db = User()
-post_db = Post()
+# post_db = Post()
+image_db = Image()
 comment_db = Comment()
 engagement_db = Engagement()
 follower_db = Follower()
@@ -21,7 +24,8 @@ def drop_tables_in_order():
             Engagement(drop=True)
             Comment(drop=True)
             Follower(drop=True)
-            Post(drop=True)
+            # Post(drop=True)
+            Image(drop=True)
             User(drop=True)
             print("All tables dropped successfully.")
             connection.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
@@ -51,17 +55,21 @@ def load_users_from_csv(file_path):
     print(f"Loaded {len(data_df)} records into the User table.")
 
 def load_images_from_csv(file_path):
-    """Load image posts from CSV into the Post table."""
+    """Load image posts from CSV into the Image table."""
     data_df = pd.read_csv(file_path)
-    post_db = Post()
+    # post_db = Post()
+    image_db = Image()
 
     for _, row in data_df.iterrows():
-        post_db.write(
-            user_id=int(row['user_id']) + 8, 
+        image_db.write(
             post_id=int(row['image_id']),
-            media_type="image", 
-            media_url=row['src'], 
-            caption=row['accessibility_caption']
+            user_id=int(row['user_id']) + 8,
+            title=row['title'],
+            url=row['src'],
+            caption=row['captions'],
+            time_posted=row['taken_at'],
+            location=row['location'],
+            # media_type="image"
         )
     print(f"Loaded {len(data_df)} image records into the Post table.")
 
@@ -87,7 +95,7 @@ def load_comments_from_csv(file_path):
     for _, row in data_df.iterrows():
         comment_db.write(
             post_id=row['post_id'], 
-            user_id=int(row['user_id']) + 8, 
+            user_id=int(row['user_id']) + 8,
             message=row['message'], 
             like_count=row['like_count']
         )
@@ -110,7 +118,8 @@ def load_engagements_from_csv(file_path):
 def main():
     # drop_tables_in_order()
 
-    load_users_from_csv('real_data/users.csv')
+    # load_users_from_csv('real_data/users.csv')
+    load_images_from_csv('real_data/images.csv')
     # load_images_from_csv('real_data/images.csv')
     # load_videos_from_csv('real_data/videos.csv')
     # # load_comments_from_csv('real_data/images.csv', 'real_data/videos.csv')
@@ -120,8 +129,11 @@ def main():
     user_db = User()
     print("Users:", user_db.read())
 
-    post_db = Post()
-    print("Posts:", post_db.read())
+    # post_db = Post()
+    # print("Posts:", post_db.read())
+
+    image_db = Image()
+    print("Images:", image_db.read())
 
     comment_db = Comment()
     print("Comments:", comment_db.read())
